@@ -7,9 +7,14 @@ st.set_page_config(page_title="Dashboard Churn Analytics - Radit", layout="wide"
 st.title("Sales and Marketing - Customer Churn Dashboard")
 st.write("Aplikasi berbasis Machine Learning untuk mendeteksi potensi churn pada pelanggan.")
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent
+
 @st.cache_resource
 def load_model():
-    return joblib.load('model_churn_radit.pkl')
+    model_path = BASE_DIR / "model_churn.pkl"
+    return joblib.load(model_path)
 
 try:
     model = load_model()
