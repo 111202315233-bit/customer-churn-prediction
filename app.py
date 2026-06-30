@@ -3,9 +3,13 @@ import pandas as pd
 import numpy as np
 import joblib
 import sklearn
-st.write("scikit-learn version:", sklearn.__version__)
 
-st.set_page_config(page_title="Dashboard Churn Analytics - Radit", layout="wide")
+st.set_page_config(
+    page_title="Dashboard Churn Analytics - Radit",
+    layout="wide"
+)
+
+st.write("scikit-learn version:", sklearn.__version__)
 st.title("Sales and Marketing - Customer Churn Dashboard")
 st.write("Aplikasi berbasis Machine Learning untuk mendeteksi potensi churn pada pelanggan.")
 
