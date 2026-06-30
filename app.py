@@ -30,7 +30,7 @@ try:
         fitur_wajib = ['Age', 'Gender', 'Tenure', 'UsageFrequency', 'SupportCalls', 'PaymentDelay', 
                        'SubscriptionType', 'ContractLength', 'TotalCharges', 'LastInteraction']
 except Exception as e:
-    st.error(f"Gagal memuat file model_churn_radit.pkl. Error: {e}")
+    st.error(f"Gagal memuat file model_churn.pkl. Error: {e}")
     fitur_wajib = []
 
 st.markdown("---")
