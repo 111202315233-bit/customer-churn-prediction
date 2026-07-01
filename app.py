@@ -1,73 +1,193 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 import sklearn
+from pathlib import Path
 
 st.set_page_config(
-    page_title="Dashboard Churn Analytics - Radit",
+    page_title="Prediksi Churn Pelanggan",
     layout="wide"
 )
 
-st.write("scikit-learn version:", sklearn.__version__)
-st.title("Sales and Marketing - Customer Churn Dashboard")
-st.write("Aplikasi berbasis Machine Learning untuk mendeteksi potensi churn pada pelanggan.")
+st.title("📊 Dashboard Prediksi Customer Churn")
+st.write("Aplikasi Machine Learning untuk memprediksi pelanggan yang berpotensi churn.")
 
-from pathlib import Path
+st.write("scikit-learn version:", sklearn.__version__)
 
 BASE_DIR = Path(__file__).parent
 
+
 @st.cache_resource
 def load_model():
-    model_path = BASE_DIR / "model_churn.pkl"
-    return joblib.load(model_path)
+    return joblib.load(BASE_DIR / "model_churn.pkl")
+
 
 try:
     model = load_model()
-    if hasattr(model, 'feature_names_in_'):
-        fitur_wajib = list(model.feature_names_in_)
-    else:
-        fitur_wajib = ['Age', 'Gender', 'Tenure', 'UsageFrequency', 'SupportCalls', 'PaymentDelay', 
-                       'SubscriptionType', 'ContractLength', 'TotalCharges', 'LastInteraction']
 except Exception as e:
-    st.error(f"Gagal memuat file model_churn.pkl. Error: {e}")
-    fitur_wajib = []
+    st.error(f"Gagal memuat model: {e}")
+    st.stop()
+
 
 st.markdown("---")
 
-if fitur_wajib:
-    st.subheader("Masukkan Data Pelanggan")
-    
-    input_dict = {}
-    col1, col2 = st.columns(2)
-    
-    for i, col_name in enumerate(fitur_wajib):
-        target_col = col1 if i % 2 == 0 else col2
-        with target_col:
-            if col_name in ['Gender', 'SubscriptionType', 'ContractLength']:
-                if col_name == 'Gender': options = ['Male', 'Female']
-                elif col_name == 'SubscriptionType': options = ['Basic', 'Standard', 'Premium']
-                else: options = ['Monthly', 'Quarterly', 'Annual']
-                input_dict[col_name] = st.selectbox(f"Pilih {col_name}", options)
-            else:
-                if col_name == 'Age': val, min_v, max_v = 30, 18, 100
-                elif col_name == 'Tenure': val, min_v, max_v = 12, 0, 120
-                elif col_name == 'TotalCharges': val, min_v, max_v = 500.0, 0.0, 10000.0
-                else: val, min_v, max_v = 3, 0, 500
-                input_dict[col_name] = st.number_input(f"Input {col_name}", min_value=min_v, value=val)
+st.header("Masukkan Data Pelanggan")
 
-    st.markdown("---")
-    if st.button("Hitung Probabilitas Churn", use_container_width=True):
-        try:
-            input_data = pd.DataFrame([input_dict])[fitur_wajib]
-            
-            prediction = model.predict(input_data)
-            probability = model.predict_proba(input_data)[0][1]
-            
-            st.markdown("### Hasil Deteksi Sistem:")
-            if prediction[0] == 1:
-                st.error(f"STATUS FINAL: PELANGGAN AKAN CHURN (Risiko: {probability*100:.2f}%)")
-            else:
-                st.success(f"STATUS FINAL: PELANGGAN AMAN / LOYAL (Risiko Churn: {probability*100:.2f}%)")
-        except Exception as e:
-            st.error(f"Gagal memproses data. Detail error: {e}")
+col1, col2 = st.columns(2)
+
+input_data = {}
+
+with col1:
+
+    input_data["customer_id"] = st.number_input(
+        "Customer ID", value=1, step=1
+    )
+
+    input_data["gender"] = st.selectbox(
+        "Gender",
+        ["Female", "Male", "Other"]
+    )
+
+    input_data["age"] = st.number_input(
+        "Age", value=30.0
+    )
+
+    input_data["country"] = st.selectbox(
+        "Country",
+        ["Bangladesh", "Germany", "India", "UK", "USA"]
+    )
+
+    input_data["city"] = st.selectbox(
+        "City",
+        ["Berlin", "Delhi", "Dhaka",
+         "Hamburg", "London", "Mumbai", "New York"]
+    )
+
+    input_data["signup_date"] = st.text_input(
+        "Signup Date",
+        "2023-01-01"
+    )
+
+    input_data["last_purchase_date"] = st.text_input(
+        "Last Purchase Date",
+        "2024-01-01"
+    )
+
+    input_data["acquisition_channel"] = st.selectbox(
+        "Acquisition Channel",
+        ["Email",
+         "Facebook Ads",
+         "Google Ads",
+         "Organic",
+         "Referral"]
+    )
+
+    input_data["device_type"] = st.selectbox(
+        "Device Type",
+        ["Desktop", "Mobile", "Tablet"]
+    )
+
+    input_data["subscription_type"] = st.selectbox(
+        "Subscription Type",
+        ["Annual", "Monthly"]
+    )
+
+    input_data["is_premium_user"] = st.selectbox(
+        "Premium User",
+        [0, 1]
+    )
+
+    input_data["total_visits"] = st.number_input(
+        "Total Visits", value=10
+    )
+
+    input_data["avg_session_time"] = st.number_input(
+        "Average Session Time", value=15.0
+    )
+
+    input_data["pages_per_session"] = st.number_input(
+        "Pages per Session", value=5.0
+    )
+
+    input_data["email_open_rate"] = st.number_input(
+        "Email Open Rate", value=0.5
+    )
+
+with col2:
+
+    input_data["email_click_rate"] = st.number_input(
+        "Email Click Rate", value=0.2
+    )
+
+    input_data["total_spent"] = st.number_input(
+        "Total Spent", value=500.0
+    )
+
+    input_data["avg_order_value"] = st.number_input(
+        "Average Order Value", value=100.0
+    )
+
+    input_data["discount_used"] = st.selectbox(
+        "Discount Used",
+        [0, 1]
+    )
+
+    input_data["coupon_code"] = st.selectbox(
+        "Coupon Code",
+        ["NEW20", "REF10", "SALE15"]
+    )
+
+    input_data["support_tickets"] = st.number_input(
+        "Support Tickets", value=1
+    )
+
+    input_data["refund_requested"] = st.selectbox(
+        "Refund Requested",
+        [0, 1]
+    )
+
+    input_data["delivery_delay_days"] = st.number_input(
+        "Delivery Delay Days", value=0
+    )
+
+    input_data["payment_method"] = st.selectbox(
+        "Payment Method",
+        ["BKash", "Card", "PayPal", "SEPA", "UPI"]
+    )
+
+    input_data["satisfaction_score"] = st.number_input(
+        "Satisfaction Score", value=8.0
+    )
+
+    input_data["nps_score"] = st.number_input(
+        "NPS Score", value=50
+    )
+
+    input_data["marketing_spend_per_user"] = st.number_input(
+        "Marketing Spend", value=100.0
+    )
+
+    input_data["lifetime_value"] = st.number_input(
+        "Lifetime Value", value=1000.0
+    )
+
+    input_data["last_3_month_purchase_freq"] = st.number_input(
+        "Last 3 Month Purchase Frequency",
+        value=5
+    )
+
+st.markdown("---")
+
+if st.button("🔍 Prediksi Churn", use_container_width=True):
+
+    df = pd.DataFrame([input_data])
+
+    prediction = model.predict(df)[0]
+    probability = model.predict_proba(df)[0][1]
+
+    st.subheader("Hasil Prediksi")
+
+    if prediction == 1:
+        st.error(f"⚠️ Pelanggan diprediksi CHURN\n\nProbabilitas: {probability:.2%}")
+    else:
+        st.success(f"✅ Pelanggan TIDAK CHURN\n\nProbabilitas Churn: {probability:.2%}")
